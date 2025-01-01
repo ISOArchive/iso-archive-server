@@ -2,6 +2,7 @@ from typing import Annotated
 from fastapi import FastAPI, Query
 from fastapi.staticfiles import StaticFiles
 from more_itertools import unique_justseen, ilen
+from itertools import islice
 
 from os_types import OS, OSParams
 
@@ -83,6 +84,8 @@ def get_os(
     search: Annotated[str | None, Query()] = None,
     ascBy: Annotated[str | None, Query()] = None,
     descBy: Annotated[str | None, Query()] = None,
+    size: Annotated[int, Query(ge=1, le=100)] = 10,
+    page: Annotated[int, Query(ge=1)] = 1,
 ) -> list[OS]:
     filtered_manifests = get_filtered_os_manifests(
         variants, names, versions, disketteSizes, floppySizes, archs, tags, search
@@ -90,11 +93,9 @@ def get_os(
 
     sort_key = ascBy or descBy
     if sort_key is not None:
-        return list(
-            sorted(
-                filtered_manifests,
-                key=lambda os: os.get(sort_key, ""),
-                reverse=bool(descBy),
-            )
+        filtered_manifests = sorted(
+            filtered_manifests,
+            key=lambda os: os.get(sort_key, ""),
+            reverse=bool(descBy),
         )
-    return list(filtered_manifests)
+    return list(islice(filtered_manifests, size * (page - 1), size * page))

@@ -1,6 +1,7 @@
 from typing import Annotated
 from fastapi import FastAPI, Query
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from more_itertools import unique_justseen, ilen
 from itertools import islice
 
@@ -9,6 +10,18 @@ from os_types import OS, OSParams
 from utils import get_all_os_manifests, get_filtered_os_manifests, get_archive_path
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "https://api.isoarchives.org",
+        "https://isoarchives.org",
+    ],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=True,
+)
 
 app.mount("/download", StaticFiles(directory=get_archive_path()), name="download")
 

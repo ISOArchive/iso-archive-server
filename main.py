@@ -98,7 +98,7 @@ def get_os(
     ascBy: Annotated[str | None, Query()] = None,
     descBy: Annotated[str | None, Query()] = None,
     size: Annotated[int, Query(ge=1, le=100)] = 10,
-    page: Annotated[int, Query(ge=1)] = 1,
+    page: Annotated[int, Query(ge=0)] = 0,
 ) -> list[OS]:
     filtered_manifests = get_filtered_os_manifests(
         variants, names, versions, disketteSizes, floppySizes, archs, tags, search
@@ -111,4 +111,4 @@ def get_os(
             key=lambda os: os.get(sort_key, ""),
             reverse=bool(descBy),
         )
-    return list(islice(filtered_manifests, size * (page - 1), size * page))
+    return list(islice(filtered_manifests, size * page, size * page))

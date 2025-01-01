@@ -7,7 +7,6 @@ from os import getenv
 
 load_dotenv()
 
-
 pattern = r"""
     (?P<os_name>[^{}_]+)          # OS Name
     _(?P<version>[^{}_]+)               # Version or Build Number
@@ -33,11 +32,11 @@ def get_os_file_list() -> Generator[str, None, None]:
     )
 
 
-def get_os_manifest_from_path(path: Path) -> OS:
+def get_os_manifest_from_path(path: Path) -> OS | None:
     varient = path.parts[2]
     match = filename_regex.match(path.name)
     if match is None:
-        raise ValueError(f"Invalid filename: {path.name}")
+        return None
 
     groups = match.groupdict()
     return OS(
@@ -60,8 +59,10 @@ def get_os_manifest_from_path(path: Path) -> OS:
 
 def get_all_os_manifests() -> Generator[OS, None, None]:
     for path in get_archive_path().rglob("*"):
-        if path.is_file() and not path.name.startswith("download"):
-            yield get_os_manifest_from_path(path)
+        if path.is_file():
+            result = get_os_manifest_from_path(path)
+            if result:
+                yield result
 
 
 def get_filtered_os_manifests(

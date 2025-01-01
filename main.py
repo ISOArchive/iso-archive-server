@@ -58,13 +58,13 @@ def get_os_params(
         tags_result.update(os["tags"])
 
     return OSParams(
-        variants=list(variants_result),
-        names=list(names_result),
-        versions=list(versions_result),
-        disketteSizes=[size for size in disketteSizes_result if size is not None],
-        floppySizes=[size for size in floppySizes_result if size is not None],
-        archs=list(archs_result),
-        tags=list(tags_result),
+        variants=list(sorted(variants_result)),
+        names=list(sorted(names_result)),
+        versions=list(sorted(versions_result)),
+        disketteSizes=list(sorted(disketteSizes_result)),
+        floppySizes=list(sorted(floppySizes_result)),
+        archs=list(sorted(archs_result)),
+        tags=list(sorted(tags_result)),
     )
 
 

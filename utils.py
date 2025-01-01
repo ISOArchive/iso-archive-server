@@ -1,6 +1,6 @@
 from typing import Generator
 from pathlib import Path
-from .os_types import OS, Arch, DisketteSize, FloppySize
+from os_types import OS, Arch, DisketteSize, FloppySize
 import re
 from dotenv import load_dotenv
 from os import getenv

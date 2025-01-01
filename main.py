@@ -3,9 +3,9 @@ from fastapi import FastAPI, Query
 from fastapi.staticfiles import StaticFiles
 from more_itertools import unique_justseen, ilen
 
-from .os_types import OS, OSParams
+from os_types import OS, OSParams
 
-from .utils import get_all_os_manifests, get_filtered_os_manifests, get_archive_path
+from utils import get_all_os_manifests, get_filtered_os_manifests, get_archive_path
 
 app = FastAPI()
 

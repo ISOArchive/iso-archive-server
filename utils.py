@@ -33,28 +33,36 @@ def get_os_file_list() -> Generator[str, None, None]:
 
 
 def get_os_manifest_from_path(path: Path) -> OS | None:
-    varient = path.parts[2]
-    match = filename_regex.match(path.name)
-    if match is None:
-        return None
+    try:
+        varient = path.parts[2]
+        match = filename_regex.match(path.name)
+        if match is None:
+            return None
 
-    groups = match.groupdict()
-    return OS(
-        variant=varient,
-        name=groups["os_name"],
-        version=groups["version"],
-        disketteSize=(
-            DisketteSize(groups.get("disk_size")) if groups.get("disk_size") else None
-        ),
-        floppySize=(
-            FloppySize(groups.get("floppy_size")) if groups.get("floppy_size") else None
-        ),
-        arch=Arch(groups["arch"]),
-        tags=groups.get("tags") and groups["tags"].split(",") or [],
-        extension=groups["extension"],
-        size=path.stat().st_size,
-        url=f"{getenv('DOWNLOAD_URL', '')}/{path.relative_to(get_archive_path())}",
-    )
+        groups = match.groupdict()
+        return OS(
+            variant=varient,
+            name=groups["os_name"],
+            version=groups["version"],
+            disketteSize=(
+                DisketteSize(groups.get("disk_size"))
+                if groups.get("disk_size")
+                else None
+            ),
+            floppySize=(
+                FloppySize(groups.get("floppy_size"))
+                if groups.get("floppy_size")
+                else None
+            ),
+            arch=Arch(groups["arch"]),
+            tags=groups.get("tags") and groups["tags"].split(",") or [],
+            extension=groups["extension"],
+            size=path.stat().st_size,
+            url=f"{getenv('DOWNLOAD_URL', '')}/{path.relative_to(get_archive_path())}",
+        )
+    except ValueError:
+        print(f"Error parsing {path}")
+        return None
 
 
 def get_all_os_manifests() -> Generator[OS, None, None]:

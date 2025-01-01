@@ -111,4 +111,4 @@ def get_os(
             key=lambda os: os.get(sort_key, ""),
             reverse=bool(descBy),
         )
-    return list(islice(filtered_manifests, size * page, size * page))
+    return list(islice(filtered_manifests, size * page, size * (page + 1)))

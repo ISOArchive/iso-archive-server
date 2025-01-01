@@ -8,13 +8,13 @@ from os import getenv
 load_dotenv()
 
 pattern = r"""
-    (?P<os_name>[^_]+)          # OS Name
-    _(?P<version>[^_]+)               # Version or Build Number
-    (?:_(?P<disk_size>[^_]+)          # Disk Size (optional)
-    _(?P<floppy_size>[^_]+))?         # Floppy Size (optional)
-    _(?P<arch>[^_]+)                  # Architecture
+    (?P<os_name>[^_]+)                 # OS Name
+    _(?P<version>[^_]+)                # Version or Build Number
+    (?:_(?P<disk_size>[^_]+)           # Disk Size (optional)
+    _(?P<floppy_size>[^_]+))?          # Floppy Size (optional)
+    _(?P<arch>[^_]+(?:,[^_.]+)*)       # Architecture
     (?:_(?P<tags>[^_.]+(?:,[^_.]+)*))? # Tags (optional)
-    \.(?P<extension>.+)                 # File Extension
+    \.(?P<extension>.+)                # File Extension
 """
 
 filename_regex = re.compile(pattern, re.VERBOSE)
@@ -54,7 +54,7 @@ def get_os_manifest_from_path(path: Path) -> OS | None:
                 if groups.get("floppy_size")
                 else None
             ),
-            arch=Arch(groups["arch"]),
+            arch=[Arch(arch) for arch in groups["arch"].split(",")],
             tags=groups.get("tags") and groups["tags"].split(",") or [],
             extension=groups["extension"],
             size=path.stat().st_size,
@@ -96,7 +96,7 @@ def get_filtered_os_manifests(
                 not floppySizes
                 or (os["floppySize"] and os["floppySize"].value in floppySizes)
             )
-            and (not archs or os["arch"] in archs)
+            and (not archs or any(arch.value in archs for arch in os["arch"]))
             and (not tags or any(tag in os["tags"] for tag in tags))
             and (
                 not search
@@ -111,7 +111,7 @@ def get_filtered_os_manifests(
                     os["floppySize"]
                     and search.lower() in os["floppySize"].value.lower()
                 )
-                or search.lower() in os["arch"].lower()
+                or any(search.lower() in arch.value.lower() for arch in os["arch"])
                 or any(search.lower() in tag.lower() for tag in os["tags"])
             )
         ):

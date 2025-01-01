@@ -37,7 +37,7 @@ class OS(TypedDict):
     version: str
     disketteSize: DisketteSize | None
     floppySize: FloppySize | None
-    arch: Arch
+    arch: list[Arch]
     tags: list[str]
     extension: str
     size: int

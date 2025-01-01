@@ -34,7 +34,7 @@ def get_os_file_list() -> Generator[str, None, None]:
 
 def get_os_manifest_from_path(path: Path) -> OS | None:
     try:
-        varient = path.parts[2]
+        varient = path.parts[3]
         match = filename_regex.match(path.name)
         if match is None:
             return None
@@ -60,8 +60,8 @@ def get_os_manifest_from_path(path: Path) -> OS | None:
             size=path.stat().st_size,
             url=f"{getenv('DOWNLOAD_URL', '')}/{path.relative_to(get_archive_path())}",
         )
-    except ValueError:
-        print(f"Error parsing {path}")
+    except ValueError as e:
+        print(f"Error parsing {path}: {e}")
         return None
 
 

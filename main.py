@@ -61,8 +61,8 @@ def get_os_params(
         variants=list(sorted(variants_result)),
         names=list(sorted(names_result)),
         versions=list(sorted(versions_result)),
-        disketteSizes=list(sorted(disketteSizes_result)),
-        floppySizes=list(sorted(floppySizes_result)),
+        disketteSizes=list(sorted(size for size in disketteSizes_result if size)),
+        floppySizes=list(sorted(size for size in floppySizes_result if size)),
         archs=list(sorted(archs_result)),
         tags=list(sorted(tags_result)),
     )

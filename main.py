@@ -36,17 +36,26 @@ def get_os_params(
     archs: Annotated[list[str] | None, Query()] = None,
     tags: Annotated[list[str] | None, Query()] = None,
 ) -> OSParams:
-    os_manifests = get_all_os_manifests()
-
-    variants_result = unique_everseen(os["variant"] for os in os_manifests)
-    names_result = unique_everseen(os["name"] for os in os_manifests)
-    versions_result = unique_everseen(os["version"] for os in os_manifests)
-    disketteSizes_result = unique_everseen(os["disketteSize"] for os in os_manifests)
-    floppySizes_result = unique_everseen(os["floppySize"] for os in os_manifests)
-    archs_result = unique_everseen(os["arch"] for os in os_manifests)
-    tags_result = unique_everseen(
-        tag for os in os_manifests for tag in os["tags"] if not tags or tag in tags
+    filtered_manifests = get_filtered_os_manifests(
+        variants, names, versions, disketteSizes, floppySizes, archs, tags
     )
+
+    variants_result = set()
+    names_result = set()
+    versions_result = set()
+    disketteSizes_result = set()
+    floppySizes_result = set()
+    archs_result = set()
+    tags_result = set()
+
+    for os in filtered_manifests:
+        variants_result.add(os["variant"])
+        names_result.add(os["name"])
+        versions_result.add(os["version"])
+        disketteSizes_result.add(os["disketteSize"])
+        floppySizes_result.add(os["floppySize"])
+        archs_result.add(os["arch"])
+        tags_result.update(os["tags"])
 
     return OSParams(
         variants=list(variants_result),

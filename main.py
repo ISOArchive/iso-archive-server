@@ -39,57 +39,13 @@ def get_os_params(
     os_manifests = get_all_os_manifests()
 
     variants_result = unique_everseen(os["variant"] for os in os_manifests)
-    names_result = unique_everseen(
-        os["name"]
-        for os in os_manifests
-        if (not variants or os["variant"] in variants)
-        and (not names or os["name"] in names)
-    )
-    versions_result = unique_everseen(
-        os["version"]
-        for os in os_manifests
-        if (not variants or os["variant"] in variants)
-        and (not names or os["name"] in names)
-        and (not versions or os["version"] in versions)
-    )
-    disketteSizes_result = unique_everseen(
-        os["disketteSize"]
-        for os in os_manifests
-        if (not variants or os["variant"] in variants)
-        and (not names or os["name"] in names)
-        and (not versions or os["version"] in versions)
-        and (not disketteSizes or os["disketteSize"] in disketteSizes)
-    )
-    floppySizes_result = unique_everseen(
-        os["floppySize"]
-        for os in os_manifests
-        if (not variants or os["variant"] in variants)
-        and (not names or os["name"] in names)
-        and (not versions or os["version"] in versions)
-        and (not disketteSizes or os["disketteSize"] in disketteSizes)
-        and (not floppySizes or os["floppySize"] in floppySizes)
-    )
-    archs_result = unique_everseen(
-        os["arch"]
-        for os in os_manifests
-        if (not variants or os["variant"] in variants)
-        and (not names or os["name"] in names)
-        and (not versions or os["version"] in versions)
-        and (not disketteSizes or os["disketteSize"] in disketteSizes)
-        and (not floppySizes or os["floppySize"] in floppySizes)
-        and (not archs or os["arch"] in archs)
-    )
+    names_result = unique_everseen(os["name"] for os in os_manifests)
+    versions_result = unique_everseen(os["version"] for os in os_manifests)
+    disketteSizes_result = unique_everseen(os["disketteSize"] for os in os_manifests)
+    floppySizes_result = unique_everseen(os["floppySize"] for os in os_manifests)
+    archs_result = unique_everseen(os["arch"] for os in os_manifests)
     tags_result = unique_everseen(
-        tag
-        for os in os_manifests
-        for tag in os["tags"]
-        if (not variants or os["variant"] in variants)
-        and (not names or os["name"] in names)
-        and (not versions or os["version"] in versions)
-        and (not disketteSizes or os["disketteSize"] in disketteSizes)
-        and (not floppySizes or os["floppySize"] in floppySizes)
-        and (not archs or os["arch"] in archs)
-        and (not tags or tag in tags)
+        tag for os in os_manifests for tag in os["tags"] if not tags or tag in tags
     )
 
     return OSParams(

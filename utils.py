@@ -8,12 +8,12 @@ from os import getenv
 load_dotenv()
 
 pattern = r"""
-    (?P<os_name>[^{}_]+)          # OS Name
-    _(?P<version>[^{}_]+)               # Version or Build Number
-    (?:_(?P<disk_size>[^{}_]+)          # Disk Size (optional)
-    _(?P<floppy_size>[^{}_]+))?         # Floppy Size (optional)
-    _(?P<arch>[^{}_]+)                  # Architecture
-    (?:_(?P<tags>[^{}_]+))?             # Tags (optional)
+    (?P<os_name>[^_]+)          # OS Name
+    _(?P<version>[^_]+)               # Version or Build Number
+    (?:_(?P<disk_size>[^_]+)          # Disk Size (optional)
+    _(?P<floppy_size>[^_]+))?         # Floppy Size (optional)
+    _(?P<arch>[^_]+)                  # Architecture
+    (?:_(?P<tags>[^_.]+(?:,[^_.]+)*))? # Tags (optional)
     \.(?P<extension>.+)                 # File Extension
 """
 

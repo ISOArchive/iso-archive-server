@@ -7,7 +7,7 @@ from itertools import islice
 
 from os_types import OS, OSParams
 
-from utils import get_all_os_manifests, get_filtered_os_manifests, get_archive_path
+from utils import get_filtered_os_manifests, get_archive_path
 
 app = FastAPI()
 

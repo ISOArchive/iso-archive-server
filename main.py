@@ -54,7 +54,7 @@ def get_os_params(
         versions_result.add(os["version"])
         disketteSizes_result.add(os["disketteSize"])
         floppySizes_result.add(os["floppySize"])
-        archs_result.add(os["arch"])
+        archs_result.update(os["arch"])
         tags_result.update(os["tags"])
 
     return OSParams(

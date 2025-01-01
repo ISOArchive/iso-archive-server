@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import FastAPI, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from more_itertools import unique_justseen, ilen
+from more_itertools import unique_everseen, ilen
 from itertools import islice
 
 from os_types import OS, OSParams
@@ -41,15 +41,15 @@ def get_os_params(
         variants, names, versions, disketteSizes, floppySizes, archs, tags
     )
 
-    variants_result = unique_justseen(os["variant"] for os in os_manifests)
-    names_result = unique_justseen(os["name"] for os in filtered_manifests)
-    versions_result = unique_justseen(os["version"] for os in filtered_manifests)
-    disketteSizes_result = unique_justseen(
+    variants_result = unique_everseen(os["variant"] for os in os_manifests)
+    names_result = unique_everseen(os["name"] for os in filtered_manifests)
+    versions_result = unique_everseen(os["version"] for os in filtered_manifests)
+    disketteSizes_result = unique_everseen(
         os["disketteSize"] for os in filtered_manifests
     )
-    floppySizes_result = unique_justseen(os["floppySize"] for os in filtered_manifests)
-    archs_result = unique_justseen(os["arch"] for os in filtered_manifests)
-    tags_result = unique_justseen(
+    floppySizes_result = unique_everseen(os["floppySize"] for os in filtered_manifests)
+    archs_result = unique_everseen(os["arch"] for os in filtered_manifests)
+    tags_result = unique_everseen(
         tag
         for os in filtered_manifests
         for tag in os["tags"]

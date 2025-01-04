@@ -38,6 +38,7 @@ class Arch(str, Enum):
     ARM64 = "arm64"
     ARM64E = "arm64e"
     ARM = "arm"
+    ARMV7 = "armv7"
     MIPS = "mips"
     MIPS64 = "mips64"
     X86 = "x86"

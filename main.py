@@ -2,8 +2,9 @@ from typing import Annotated
 from fastapi import FastAPI, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from more_itertools import unique_everseen, ilen
+from more_itertools import ilen
 from itertools import islice
+from natsort import natsorted
 
 from os_types import OS, OSParams
 
@@ -58,13 +59,13 @@ def get_os_params(
         tags_result.update(os["tags"])
 
     return OSParams(
-        variants=list(sorted(variants_result)),
-        names=list(sorted(names_result)),
-        versions=list(sorted(versions_result)),
-        disketteSizes=list(sorted(size for size in disketteSizes_result if size)),
-        floppySizes=list(sorted(size for size in floppySizes_result if size)),
-        archs=list(sorted(archs_result)),
-        tags=list(sorted(tags_result)),
+        variants=list(natsorted(variants_result)),
+        names=list(natsorted(names_result)),
+        versions=list(natsorted(versions_result)),
+        disketteSizes=list(natsorted(size for size in disketteSizes_result if size)),
+        floppySizes=list(natsorted(size for size in floppySizes_result if size)),
+        archs=list(natsorted(archs_result)),
+        tags=list(natsorted(tags_result)),
     )
 
 
@@ -107,7 +108,7 @@ def get_os(
 
     sort_key = ascBy or descBy
     if sort_key is not None:
-        filtered_manifests = sorted(
+        filtered_manifests = natsorted(
             filtered_manifests,
             key=lambda os: os.get(sort_key, ""),
             reverse=bool(descBy),

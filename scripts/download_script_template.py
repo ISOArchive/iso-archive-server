@@ -64,13 +64,13 @@ class OS(TypedDict):
 def generate_filename(os: OS) -> str:
     lists = []
     lists.append(os["name"])
-    lists.append(os["version"])
+    lists.append(os["version"].replace("_", "-"))
     if os["disketteSize"]:
         lists.append(os["disketteSize"])
     if os["floppySize"]:
         lists.append(os["floppySize"])
     lists.append(",".join(filter(lambda x: x, os["arch"])))
-    lists.append(",".join([tag.title().replace("_", "-") for tag in os["tags"] if tag]))
+    lists.append(",".join([tag.replace("_", "-") for tag in os["tags"] if tag]))
     return "_".join(lists) + "." + os["extension"]
 
 

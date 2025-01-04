@@ -53,6 +53,8 @@ class Arch(str, Enum):
     S390X = "s390x"
     RISCV = "riscv"
     RISCV64 = "riscv64"
+    LOONGARCH = "loongarch"
+    LOONGARCH64 = "loongarch64"
 
 
 class OS(TypedDict):

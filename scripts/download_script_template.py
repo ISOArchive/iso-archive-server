@@ -39,6 +39,7 @@ class Arch(str, Enum):
     ARM64E = "arm64e"
     ARM = "arm"
     MIPS = "mips"
+    MIPS64 = "mips64"
     X86 = "x86"
     AMD64 = "amd64"
     PPC = "ppc"
@@ -56,8 +57,8 @@ class OS(TypedDict):
     version: str
     disketteSize: DisketteSize | None
     floppySize: FloppySize | None
-    arch: list[Arch]
-    tags: list[str]
+    arch: list[Arch | None]
+    tags: list[str | None]
     extension: str
 
 
@@ -69,7 +70,7 @@ def generate_filename(os: OS) -> str:
         lists.append(os["disketteSize"])
     if os["floppySize"]:
         lists.append(os["floppySize"])
-    lists.append(",".join(filter(lambda x: x, os["arch"])))
+    lists.append(",".join([arch for arch in os["arch"] if arch]))
     lists.append(",".join([tag.replace("_", "-") for tag in os["tags"] if tag]))
     return "_".join(lists) + "." + os["extension"]
 
@@ -85,6 +86,7 @@ ARCHS = {
     "aarch64": "arm64",
     "powerpc": "ppc",
     "armhfp": "arm",
+    "armhf": "arm",
     "x86_64": "amd64",
 }
 
@@ -93,6 +95,7 @@ async def download(url: str, dry: bool, chunk_size=1 << 15, tries=0):
     async with semaphore:
         urlpath = urlsplit(url).path
         filename = Path(unquote(urlpath)).name
+        logging.debug("parsing %s", filename)
         search = re.search(PATTERN, filename)
         if search:
             version = search.group("version")

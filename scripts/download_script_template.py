@@ -51,6 +51,8 @@ class Arch(str, Enum):
     IA64 = "ia64"
     HPPA = "hppa"
     S390X = "s390x"
+    RISCV = "riscv"
+    RISCV64 = "riscv64"
 
 
 class OS(TypedDict):

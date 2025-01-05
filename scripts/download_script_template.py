@@ -50,6 +50,7 @@ class Arch(str, Enum):
     SPARC = "sparc"
     IA64 = "ia64"
     HPPA = "hppa"
+    S390 = "s390"
     S390X = "s390x"
     RISCV = "riscv"
     RISCV64 = "riscv64"
@@ -77,7 +78,7 @@ def generate_filename(os: OS) -> str:
         lists.append(os["floppySize"])
     lists.append(",".join([arch for arch in os["arch"] if arch]))
     lists.append(",".join([tag.replace("_", "-") for tag in os["tags"] if tag]))
-    return "_".join(lists) + "." + os["extension"]
+    return "_".join([l for l in lists if l != ""]) + "." + os["extension"]
 
 
 PATTERN = r"NAME-HERE-(?P<iso_type>\w+)-(?P<installation_type>\w+)-(?P<arch>[\w\d]+)-(?P<version>\d+(?:-\d+)*(?:\.\d+)*)"
@@ -135,10 +136,10 @@ async def download(url: str, dry: bool, chunk_size=1 << 15, tries=0):
             return
         try:
             logging.info("downloading %s", filename)
-            connector = aiohttp.TCPConnector(limit=5, force_close=True)
-            async with aiohttp.ClientSession(connector=connector) as session:
-                async with session.get(url, timeout=None) as response:
-                    if not dry:
+            if not dry:
+                connector = aiohttp.TCPConnector(limit=5, force_close=True)
+                async with aiohttp.ClientSession(connector=connector) as session:
+                    async with session.get(url, timeout=None) as response:
                         async with aiofiles.open(
                             path.with_suffix(path.suffix + ".part"), "wb"
                         ) as file:
@@ -150,7 +151,7 @@ async def download(url: str, dry: bool, chunk_size=1 << 15, tries=0):
                         path.with_suffix(path.suffix + ".part").rename(
                             path.with_suffix(path.suffix)
                         )
-                    logging.info("done %s", filename)
+            logging.info("done %s", filename)
         except Exception as e:
             path.unlink(missing_ok=True)
             logging.exception(e)

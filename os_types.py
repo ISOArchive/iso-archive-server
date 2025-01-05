@@ -18,7 +18,9 @@ class Arch(str, Enum):
     ARM64 = "arm64"
     ARM64E = "arm64e"
     ARM = "arm"
+    ARMV7 = "armv7"
     MIPS = "mips"
+    MIPS64 = "mips64"
     X86 = "x86"
     AMD64 = "amd64"
     PPC = "ppc"
@@ -28,7 +30,12 @@ class Arch(str, Enum):
     SPARC = "sparc"
     IA64 = "ia64"
     HPPA = "hppa"
+    S390 = "s390"
     S390X = "s390x"
+    RISCV = "riscv"
+    RISCV64 = "riscv64"
+    LOONGARCH = "loongarch"
+    LOONGARCH64 = "loongarch64"
 
 
 class OS(TypedDict):

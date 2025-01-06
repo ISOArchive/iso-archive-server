@@ -167,7 +167,14 @@ async def get_links(session: aiohttp.ClientSession, url: str) -> list[str]:
     async with session.get(url) as resp:
         body = await resp.text()
         body = bs4.BeautifulSoup(body, "lxml")
-        return [urljoin(url, x.get("href")) for x in body.find_all("a")]
+        pre = body.find("pre")
+        if pre and isinstance(pre, bs4.element.Tag):
+            return [
+                urljoin(url, x.get("href"))
+                for x in pre.find_all("a")
+                if not (x.get("href").startswith("..") or x.get("href").startswith("?"))
+            ]
+        return []
 
 
 async def main():

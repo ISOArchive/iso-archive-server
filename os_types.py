@@ -15,6 +15,7 @@ class FloppySize(str, Enum):
 
 
 class Arch(str, Enum):
+    ALPHA = "alpha"
     ARM64 = "arm64"
     ARM64E = "arm64e"
     ARM = "arm"

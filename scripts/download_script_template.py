@@ -35,6 +35,7 @@ class FloppySize(str, Enum):
 
 
 class Arch(str, Enum):
+    ALPHA = "alpha"
     ARM64 = "arm64"
     ARM64E = "arm64e"
     ARM = "arm"
@@ -109,9 +110,6 @@ async def download(url: str, dry: bool, chunk_size=1 << 15, tries=0):
             if arch in ARCHS:
                 arch = ARCHS[arch]
             installation_type = search.group("installation_type")
-            installation_type = (
-                installation_type.title() if installation_type != "DVD" else "DVD"
-            )
             filename = generate_filename(
                 OS(
                     name="NAME-HERE",

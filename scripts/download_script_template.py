@@ -92,6 +92,7 @@ ARCHS = {
     "i686": "x86",
     "aarch64": "arm64",
     "powerpc": "ppc",
+    "ppc64el": "ppc64le",
     "armhfp": "arm",
     "armhf": "arm",
     "x86_64": "amd64",

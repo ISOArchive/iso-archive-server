@@ -20,6 +20,7 @@ import re
 import bs4
 from typing import TypedDict
 from enum import Enum
+import os
 
 
 class DisketteSize(str, Enum):
@@ -83,7 +84,7 @@ def generate_filename(os: OS) -> str:
 
 
 PATTERN = r"NAME-HERE-(?P<iso_type>\w+)-(?P<installation_type>\w+)-(?P<arch>[\w\d]+)-(?P<version>\d+(?:-\d+)*(?:\.\d+)*)"
-DRY = False
+DRY = os.getenv("DRY", False) == "True"
 
 semaphore = asyncio.Semaphore(5)
 
@@ -198,5 +199,5 @@ async def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=os.getenv("LOGLEVEL", "INFO"))
     asyncio.run(main())

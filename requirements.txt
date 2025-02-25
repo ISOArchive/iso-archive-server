@@ -2,3 +2,4 @@ fastapi[standard]~=0.115.6
 more-itertools~=10.5.0
 python-dotenv~=1.0.1
 natsort~=8.4.0
+watchdog~=6.0.0

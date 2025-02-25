@@ -4,6 +4,13 @@ from os_types import OS, Arch, DisketteSize, FloppySize
 import re
 from dotenv import load_dotenv
 from os import getenv
+from watchdog.events import (
+    FileCreatedEvent,
+    FileDeletedEvent,
+    FileMovedEvent,
+    FileSystemEventHandler,
+)
+from watchdog.observers import Observer, ObserverType
 
 load_dotenv()
 
@@ -65,12 +72,73 @@ def get_os_manifest_from_path(path: Path) -> OS | None:
         return None
 
 
-def get_all_os_manifests() -> Generator[OS, None, None]:
-    for path in get_archive_path().rglob("*"):
-        if path.is_file():
-            result = get_os_manifest_from_path(path)
+CACHED_MANIFEST: list[OS] = []
+IS_INITIALIZED = False
+OBSERVER = Observer()
+
+
+class FileHandler(FileSystemEventHandler):
+    def on_created(self, event: FileCreatedEvent) -> None:
+        super().on_created(event)
+        path = event.src_path
+        if type(path) == bytes:
+            path = path.decode()
+        result = get_os_manifest_from_path(Path(path))  # type: ignore
+        if result:
+            CACHED_MANIFEST.append(result)
+
+    def on_deleted(self, event: FileDeletedEvent) -> None:
+        super().on_deleted(event)
+        path = event.src_path
+        if type(path) == bytes:
+            path = path.decode()
+        result = get_os_manifest_from_path(Path(path))  # type: ignore
+        if result:
+            for i, os in enumerate(CACHED_MANIFEST):
+                if os == result:
+                    del CACHED_MANIFEST[i]
+
+    def on_moved(self, event: FileMovedEvent) -> None:
+        super().on_moved(event)
+        if not event.is_directory:
+            path = event.dest_path
+            if type(path) == bytes:
+                path = path.decode()
+            result = get_os_manifest_from_path(Path(path))  # type: ignore
             if result:
-                yield result
+                CACHED_MANIFEST.append(result)
+            path = event.src_path
+            if type(path) == bytes:
+                path = path.decode()
+            result = get_os_manifest_from_path(Path(path))  # type: ignore
+            if result:
+                for i, os in enumerate(CACHED_MANIFEST):
+                    if os == result:
+                        del CACHED_MANIFEST[i]
+
+
+def generate_os_manifests():
+    """
+    Should be called once to generate all OS manifests
+    """
+    global CACHED_MANIFEST, IS_INITIALIZED
+    if not IS_INITIALIZED:
+        archive_path = get_archive_path()
+        for path in archive_path.rglob("*"):
+            if path.is_file():
+                result = get_os_manifest_from_path(path)
+                if result:
+                    CACHED_MANIFEST.append(result)
+        OBSERVER.schedule(FileHandler(), str(archive_path), recursive=True)
+        OBSERVER.start()
+        IS_INITIALIZED = True
+
+
+def get_all_os_manifests() -> Generator[OS, None, None]:
+    if not IS_INITIALIZED:
+        generate_os_manifests()
+    for m in CACHED_MANIFEST:
+        yield m
 
 
 def get_filtered_os_manifests(

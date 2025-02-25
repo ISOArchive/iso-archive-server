@@ -8,7 +8,7 @@ from natsort import natsorted
 
 from os_types import OS, OSParams
 
-from utils import get_filtered_os_manifests, get_archive_path
+from utils import get_filtered_os_manifests, get_archive_path, get_filtered_os_params
 
 app = FastAPI()
 
@@ -37,26 +37,17 @@ def get_os_params(
     archs: Annotated[list[str] | None, Query()] = None,
     tags: Annotated[list[str] | None, Query()] = None,
 ) -> OSParams:
-    filtered_manifests = get_filtered_os_manifests(
+    (
+        variants_result,
+        names_result,
+        versions_result,
+        disketteSizes_result,
+        floppySizes_result,
+        archs_result,
+        tags_result,
+    ) = get_filtered_os_params(
         variants, names, versions, disketteSizes, floppySizes, archs, tags
     )
-
-    variants_result = set()
-    names_result = set()
-    versions_result = set()
-    disketteSizes_result = set()
-    floppySizes_result = set()
-    archs_result = set()
-    tags_result = set()
-
-    for os in filtered_manifests:
-        variants_result.add(os["variant"])
-        names_result.add(os["name"])
-        versions_result.add(os["version"])
-        disketteSizes_result.add(os["disketteSize"])
-        floppySizes_result.add(os["floppySize"])
-        archs_result.update(os["arch"])
-        tags_result.update(os["tags"])
 
     return OSParams(
         variants=list(natsorted(variants_result)),

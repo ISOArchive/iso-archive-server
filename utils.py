@@ -33,7 +33,7 @@ def get_os_file_list() -> Generator[str, None, None]:
     )
 
 
-def get_os_manifest_from_path(path: Path) -> OS | None:
+def get_os_manifest_from_path(path: Path, without_size=False) -> OS | None:
     try:
         varient = path.parts[3]
         match = filename_regex.match(path.name)
@@ -58,7 +58,7 @@ def get_os_manifest_from_path(path: Path) -> OS | None:
             arch=[Arch(arch) for arch in groups["arch"].split(",")],
             tags=groups.get("tags") and groups["tags"].split(",") or [],
             extension=groups["extension"],
-            size=path.stat().st_size,
+            size=path.stat().st_size if not without_size else 0,
             url=f"{getenv('DOWNLOAD_URL', '')}/{path.relative_to(get_archive_path())}",
         )
     except ValueError as e:
@@ -78,10 +78,10 @@ def watch_file_changes():
                 if result:
                     CACHED_MANIFEST.append(result)
             elif change_type == 3:
-                result = get_os_manifest_from_path(Path(path))
+                result = get_os_manifest_from_path(Path(path), without_size=True)
                 if result:
                     for i, os in enumerate(CACHED_MANIFEST):
-                        if os == result:
+                        if os["url"] == result["url"]:
                             del CACHED_MANIFEST[i]
 
 

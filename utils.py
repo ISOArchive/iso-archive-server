@@ -4,13 +4,7 @@ from os_types import OS, Arch, DisketteSize, FloppySize
 import re
 from dotenv import load_dotenv
 from os import getenv
-from watchdog.events import (
-    FileCreatedEvent,
-    FileDeletedEvent,
-    FileMovedEvent,
-    FileSystemEventHandler,
-)
-from watchdog.observers import Observer
+import watchfiles, threading
 
 load_dotenv()
 
@@ -39,7 +33,7 @@ def get_os_file_list() -> Generator[str, None, None]:
     )
 
 
-def get_os_manifest_from_path(path: Path, new_path: Path | None = None) -> OS | None:
+def get_os_manifest_from_path(path: Path) -> OS | None:
     try:
         varient = path.parts[3]
         match = filename_regex.match(path.name)
@@ -64,7 +58,7 @@ def get_os_manifest_from_path(path: Path, new_path: Path | None = None) -> OS | 
             arch=[Arch(arch) for arch in groups["arch"].split(",")],
             tags=groups.get("tags") and groups["tags"].split(",") or [],
             extension=groups["extension"],
-            size=path.stat().st_size if new_path is None else new_path.stat().st_size,
+            size=path.stat().st_size,
             url=f"{getenv('DOWNLOAD_URL', '')}/{path.relative_to(get_archive_path())}",
         )
     except ValueError as e:
@@ -74,47 +68,21 @@ def get_os_manifest_from_path(path: Path, new_path: Path | None = None) -> OS | 
 
 CACHED_MANIFEST: list[OS] = []
 IS_INITIALIZED = False
-OBSERVER = Observer()
 
 
-class FileHandler(FileSystemEventHandler):
-    def on_created(self, event: FileCreatedEvent) -> None:
-        super().on_created(event)
-        path = event.src_path
-        if type(path) == bytes:
-            path = path.decode()
-        result = get_os_manifest_from_path(Path(path))  # type: ignore
-        if result:
-            CACHED_MANIFEST.append(result)
-
-    def on_deleted(self, event: FileDeletedEvent) -> None:
-        super().on_deleted(event)
-        path = event.src_path
-        if type(path) == bytes:
-            path = path.decode()
-        result = get_os_manifest_from_path(Path(path))  # type: ignore
-        if result:
-            for i, os in enumerate(CACHED_MANIFEST):
-                if os == result:
-                    del CACHED_MANIFEST[i]
-
-    def on_moved(self, event: FileMovedEvent) -> None:
-        super().on_moved(event)
-        if not event.is_directory:
-            new_path = event.dest_path
-            if type(new_path) == bytes:
-                new_path = new_path.decode()
-            result = get_os_manifest_from_path(Path(new_path))  # type: ignore
-            if result:
-                CACHED_MANIFEST.append(result)
-            path = event.src_path
-            if type(path) == bytes:
-                path = path.decode()
-            result = get_os_manifest_from_path(Path(path), Path(new_path))  # type: ignore
-            if result:
-                for i, os in enumerate(CACHED_MANIFEST):
-                    if os == result:
-                        del CACHED_MANIFEST[i]
+def watch_file_changes():
+    for changes in watchfiles.watch(get_archive_path()):
+        for change_type, path in changes:
+            if change_type == 1:
+                result = get_os_manifest_from_path(Path(path))
+                if result:
+                    CACHED_MANIFEST.append(result)
+            elif change_type == 3:
+                result = get_os_manifest_from_path(Path(path))
+                if result:
+                    for i, os in enumerate(CACHED_MANIFEST):
+                        if os == result:
+                            del CACHED_MANIFEST[i]
 
 
 def generate_os_manifests():
@@ -130,8 +98,7 @@ def generate_os_manifests():
                 result = get_os_manifest_from_path(path)
                 if result:
                     CACHED_MANIFEST.append(result)
-        OBSERVER.schedule(FileHandler(), str(archive_path), recursive=True)
-        OBSERVER.start()
+        threading.Thread(target=watch_file_changes, daemon=True).start()
 
 
 def get_all_os_manifests() -> Generator[OS, None, None]:

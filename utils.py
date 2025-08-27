@@ -81,7 +81,7 @@ def watch_file_changes():
                 result = get_os_manifest_from_path(Path(path))
                 if result:
                     for i, os in enumerate(CACHED_MANIFEST):
-                        if os["url"] == result["url"]:
+                        if os["url"] == result["url"] and os["size"] != result["size"]:
                             CACHED_MANIFEST[i] = result
             elif change_type == 3:
                 result = get_os_manifest_from_path(Path(path), without_size=True)

@@ -27,7 +27,7 @@ app.add_middleware(
 app.mount("/download", StaticFiles(directory=get_archive_path()), name="download")
 
 
-@app.get("/os/params/")
+@app.get("/os/params")
 def get_os_params(
     variants: Annotated[list[str] | None, Query()] = None,
     names: Annotated[list[str] | None, Query()] = None,
@@ -60,7 +60,7 @@ def get_os_params(
     )
 
 
-@app.get("/os/count/")
+@app.get("/os/count")
 def get_os_count(
     variants: Annotated[list[str] | None, Query()] = None,
     names: Annotated[list[str] | None, Query()] = None,
@@ -78,7 +78,7 @@ def get_os_count(
     return ilen(filtered_manifests)
 
 
-@app.get("/os/")
+@app.get("/os")
 def get_os(
     variants: Annotated[list[str] | None, Query()] = None,
     names: Annotated[list[str] | None, Query()] = None,
